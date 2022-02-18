@@ -7,7 +7,7 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class SpringgatewayApplication {
+public class Application {
 
 	@Bean
 	public RouteLocator myRoutes(RouteLocatorBuilder builder) {
@@ -16,11 +16,17 @@ public class SpringgatewayApplication {
 						.path("/get")
 						.filters(f -> f.addRequestHeader("Hello1", "World1"))
 						.uri("http://httpbin.org:80"))
+				.route(p -> p
+						.host("*.circuitbreaker.com")
+						.filters(f -> f.circuitBreaker(config -> config
+								.setName("mycmd")
+								.setFallbackUri("forward:/fallback")))
+						.uri("http://httpbin.org:80"))
 				.build();
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringgatewayApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 }
